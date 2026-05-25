@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Today">
+<meta name="theme-color" content="#1a1a19">
+<title>Today — Training</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%231a1a19'/><text x='90' y='118' font-family='-apple-system,SF Pro Display,sans-serif' font-size='100' font-weight='700' fill='%23ffffff' text-anchor='middle'>·</text></svg>">
+
+<style>
+:root {
+  --bg: #fafaf7;
+  --surface: #ffffff;
+  --ink: #1a1a19;
+  --ink-2: #444441;
+  --muted: #5f5e5a;
+  --border: #e8e6dd;
+
+  --run-bg: #eaf3de;
+  --run-tx: #27500a;
+  --run-dk: #173404;
+  --str-bg: #faeeda;
+  --str-tx: #633806;
+  --str-dk: #412402;
+  --nut-bg: #e6f1fb;
+  --nut-tx: #0c447c;
+  --nut-dk: #042c53;
+  --rec-bg: #f1efe8;
+  --rec-tx: #444441;
+  --rec-dk: #2c2c2a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e0e0d;
+    --surface: #1a1a19;
+    --ink: #f5f4ee;
+    --ink-2: #d3d1c7;
+    --muted: #888780;
+    --border: #2c2c2a;
+
+    --run-bg: #1a2810;
+    --run-tx: #c0dd97;
+    --run-dk: #eaf3de;
+    --str-bg: #2e1f08;
+    --str-tx: #fac775;
+    --str-dk: #faeeda;
+    --nut-bg: #0c2540;
+    --nut-tx: #85b7eb;
+    --nut-dk: #e6f1fb;
+    --rec-bg: #2c2c2a;
+    --rec-tx: #d3d1c7;
+    --rec-dk: #f5f4ee;
+  }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.wrap {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 20px 20px 40px;
+}
+
+header {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.day-label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.date {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+h1.today-title {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 28px;
+  color: var(--ink);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 18px 20px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.card.run::before,
+.card.str::before,
+.card.nut::before,
+.card.rec::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+}
+
+.card.run::before { background: var(--run-tx); }
+.card.str::before { background: var(--str-tx); }
+.card.nut::before { background: var(--nut-tx); }
+.card.rec::before { background: var(--muted); }
+
+.card-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.card.run .card-label { color: var(--run-tx); }
+.card.str .card-label { color: var(--str-tx); }
+.card.nut .card-label { color: var(--nut-tx); }
+.card.rec .card-label { color: var(--muted); }
+
+.card-title {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+
+.card-detail {
+  font-size: 15px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.pace {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: var(--run-bg);
+  color: var(--run-tx);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.pace::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--run-tx);
+}
+
+.session-meta {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.session-meta span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.session-meta strong {
+  color: var(--ink-2);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.nutrition-list {
+  list-style: none;
+  margin-top: 6px;
+}
+
+.nutrition-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nutrition-list li:last-child { border-bottom: none; }
+
+.nutrition-list .meal-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--nut-tx);
+  font-weight: 600;
+}
+
+.nutrition-list .meal-name {
+  font-size: 15px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.nutrition-list .meal-note {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.daily-targets {
+  margin-top: 24px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.daily-targets strong {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.day-nav {
+  display: flex;
+  gap: 6px;
+  margin-top: 28px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.day-nav button {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-width: 50px;
+}
+
+.day-nav button:hover {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.day-nav button.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+
+.footnote {
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.6;
+}
+
+.footnote a {
+  color: var(--muted);
+  text-decoration: underline;
+}
+
+@media (max-width: 400px) {
+  h1.today-title { font-size: 28px; }
+  .wrap { padding: 16px 16px 32px; }
+  .card { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="day-label" id="day-label">Today</div>
+      <div class="date" id="date"></div>
+    </div>
+  </header>
+
+  <h1 class="today-title" id="day-title">Loading…</h1>
+
+  <div id="content"></div>
+
+  <div class="daily-targets">
+    <strong>Daily targets:</strong> 130–150g protein · ~300–400 kcal deficit · 7.5–9 hrs sleep · consistency over perfection
+  </div>
+
+  <div class="day-nav" id="day-nav"></div>
+
+  <div class="footnote">
+    Calibrated to sub-20 5K · paces ~4:00/km race pace<br>
+    Tap day initials to preview · refresh resets to today
+  </div>
+</div>
+
+<script>
+const days = [
+  { full: "Monday", short: "Mon", initial: "M" },
+  { full: "Tuesday", short: "Tue", initial: "T" },
+  { full: "Wednesday", short: "Wed", initial: "W" },
+  { full: "Thursday", short: "Thu", initial: "Th" },
+  { full: "Friday", short: "Fri", initial: "F" },
+  { full: "Saturday", short: "Sat", initial: "Sa" },
+  { full: "Sunday", short: "Sun", initial: "Su" },
+];
+
+const plan = [
+  // Monday
+  {
+    sessions: [
+      {
+        type: "run",
+        label: "Run",
+        title: "Easy run",
+        detail: "Conversational. Nose-breathe if you can.",
+        pace: "5:00–5:30/km",
+        duration: "30–45 min",
+        purpose: "Aerobic base"
+      },
+      {
+        type: "str",
+        label: "Strength",
+        title: "Lower + push",
+        detail: "Block A: Bulgarian split squats 3×8–10 · DB RDLs 3×10. Block B: Push-ups or DB floor press 3×10–15 · Dips 3×6–10. Block C: KB swings 3×15 · Hanging knee raises 3×12.",
+        purpose: "Athletic muscle + durability"
+      }
+    ],
+    nutrition: [
+      { meal: "Breakfast", name: "Greek yogurt + oats + whey", note: "~35g protein" },
+      { meal: "Lunch", name: "Chicken wrap + fruit", note: "Balanced post-run" },
+      { meal: "Dinner", name: "Salmon + potatoes + greens", note: "High protein, controlled fats" }
+    ]
+  },
+  // Tuesday
+  {
+    sessions: [
+      {
+        type: "run",
+        label: "Run · Hard session",
+        title: "Intervals",
+        detail: "6 × 800m at 5K pace or 10 × 400m faster. Warm up and cool down 10 min each.",
+        pace: "3:40–3:50/km",
+        duration: "45–60 min total",
+        purpose: "Speed ceiling, body comp"
+      },
+      {
+        type: "rec",
+        label: "Recovery",
+        title: "Protein and carbs within 1–2 hrs",
+        detail: "Stretch or foam roll. Save the strength session — today is hard enough."
+      }
+    ],
+    nutrition: [
+      { meal: "Pre-run (60–120 min before)", name: "Banana + whey, or oats + honey", note: "Carbs + small protein, low fat" },
+      { meal: "Post-run (within 1–2 hrs)", name: "Chicken + rice, or protein shake + cereal", note: "Protein + carbs" },
+      { meal: "Dinner", name: "Chilli + veg, or steak + rice", note: "Refuel properly" }
+    ]
+  },
+  // Wednesday
+  {
+    sessions: [
+      {
+        type: "run",
+        label: "Run",
+        title: "Recovery run",
+        detail: "Very easy. Slower than easy. If you can't nose-breathe, slow down.",
+        pace: "5:30–6:00/km",
+        duration: "30–40 min",
+        purpose: "Active recovery"
+      },
+      {
+        type: "str",
+        label: "Strength",
+        title: "Pull + upper",
+        detail: "Block A: Pull-ups 4 sets · Single-arm DB row 3×10. Block B: DB shoulder press 3×10 · Lateral raises 3×15. Block C: Hammer curls 3×12 · Plank or ab wheel 3 rounds.",
+        purpose: "V-taper, shoulders, definition"
+      }
+    ],
+    nutrition: [
+      { meal: "Breakfast", name: "Greek yogurt + banana", note: "Easy fuel" },
+      { meal: "Lunch", name: "Protein + potatoes + veg", note: "Whole food" },
+      { meal: "Dinner", name: "Lean protein + veg + rice", note: "Balanced" }
+    ]
+  },
+  // Thursday
+  {
+    sessions: [
+      {
+        type: "run",
+        label: "Run · Hard session",
+        title: "Tempo run",
+        detail: "20–30 min continuous tempo, or 3 × 10 min threshold. Comfortably hard — current 10K race effort.",
+        pace: "4:05–4:15/km",
+        duration: "20–30 min",
+        purpose: "Biggest aerobic upgrade"
+      }
+    ],
+    nutrition: [
+      { meal: "Pre-run", name: "Toast + eggs, or oats + honey + coffee", note: "Carbs in before tempo" },
+      { meal: "Lunch", name: "Chicken rice bowl", note: "Veg, sauce, lean protein" },
+      { meal: "Dinner", name: "Protein + veg + moderate carbs", note: "Standard balanced dinner" }
+    ]
+  },
+  // Friday
+  {
+    sessions: [
+      {
+        type: "rec",
+        label: "Recovery",
+        title: "Mobility or walk",
+        detail: "20–40 min easy walk or mobility flow. No running today.",
+        purpose: "Set up for long run"
+      }
+    ],
+    nutrition: [
+      { meal: "Breakfast", name: "High-protein breakfast", note: "Eggs, yogurt or whey + carbs" },
+      { meal: "Lunch", name: "Whole food meal", note: "Balanced plate" },
+      { meal: "Dinner", name: "Lighter dinner", note: "Don't overeat night before long run" }
+    ]
+  },
+  // Saturday
+  {
+    sessions: [
+      {
+        type: "run",
+        label: "Run · Long",
+        title: "Long run",
+        detail: "Truly conversational pace. If you can't speak in sentences, slow down. Fuel mid-run if going over 90 min.",
+        pace: "5:00–5:30/km",
+        duration: "75–110 min",
+        purpose: "Aerobic engine, fat-loss friendly"
+      }
+    ],
+    nutrition: [
+      { meal: "Pre-run (60–90 min before)", name: "Oats + banana + coffee", note: "Easy carbs" },
+      { meal: "Post-run (within 1 hr)", name: "Recovery meal — protein + carbs", note: "Don't delay" },
+      { meal: "Dinner", name: "Large recovery dinner", note: "Big plate. Don't undereat." }
+    ]
+  },
+  // Sunday
+  {
+    sessions: [
+      {
+        type: "rec",
+        label: "Rest",
+        title: "Walk or full rest",
+        detail: "Default to rest. Walk the dog or do nothing. Listen to the body.",
+        purpose: "Recover, reset for the week"
+      },
+      {
+        type: "rec",
+        label: "Optional",
+        title: "Light flow (only if recovered)",
+        detail: "20–30 min mobility, abs, bands, calves, easy KB flow. Not another hard workout. Default to skipping it.",
+        purpose: "Only if you feel good"
+      }
+    ],
+    nutrition: [
+      { meal: "Breakfast", name: "Relaxed high-protein breakfast", note: "Take your time" },
+      { meal: "Lunch", name: "Whole food meal", note: "Balanced" },
+      { meal: "Dinner", name: "Balanced dinner", note: "Whole food" }
+    ]
+  }
+];
+
+function renderDay(idx) {
+  const day = days[idx];
+  const data = plan[idx];
+
+  document.getElementById("day-label").textContent =
+    idx === todayIdx() ? "Today" : day.full;
+  document.getElementById("day-title").textContent = day.full;
+
+  // Date — only show real date when viewing today
+  const dateEl = document.getElementById("date");
+  if (idx === todayIdx()) {
+    const opts = { weekday: 'long', month: 'short', day: 'numeric' };
+    dateEl.textContent = new Date().toLocaleDateString('en-GB', opts);
+  } else {
+    dateEl.textContent = "Preview";
+  }
+
+  const content = document.getElementById("content");
+  let html = "";
+
+  // Sessions
+  data.sessions.forEach(s => {
+    html += `<div class="card ${s.type}">
+      <div class="card-label">${s.label}</div>
+      <div class="card-title">${s.title}</div>
+      <div class="card-detail">${s.detail}</div>`;
+
+    if (s.pace) {
+      html += `<div class="pace">${s.pace}</div>`;
+    }
+
+    if (s.duration || s.purpose) {
+      html += `<div class="session-meta">`;
+      if (s.duration) html += `<span><strong>${s.duration}</strong></span>`;
+      if (s.purpose) html += `<span>${s.purpose}</span>`;
+      html += `</div>`;
+    }
+
+    html += `</div>`;
+  });
+
+  // Nutrition
+  if (data.nutrition && data.nutrition.length) {
+    html += `<div class="card nut">
+      <div class="card-label">Nutrition</div>
+      <ul class="nutrition-list">`;
+    data.nutrition.forEach(n => {
+      html += `<li>
+        <span class="meal-label">${n.meal}</span>
+        <span class="meal-name">${n.name}</span>
+        <span class="meal-note">${n.note}</span>
+      </li>`;
+    });
+    html += `</ul></div>`;
+  }
+
+  content.innerHTML = html;
+
+  // Update active nav
+  document.querySelectorAll(".day-nav button").forEach((b, i) => {
+    b.classList.toggle("active", i === idx);
+  });
+}
+
+function todayIdx() {
+  // Mon = 0 ... Sun = 6
+  return (new Date().getDay() + 6) % 7;
+}
+
+// Build nav
+const nav = document.getElementById("day-nav");
+days.forEach((d, i) => {
+  const btn = document.createElement("button");
+  btn.textContent = d.short;
+  btn.addEventListener("click", () => renderDay(i));
+  nav.appendChild(btn);
+});
+
+// Initial render
+renderDay(todayIdx());
+</script>
+
+</body>
+</html>
