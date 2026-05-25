@@ -301,6 +301,65 @@ h1.today-title {
   text-decoration: underline;
 }
 
+.strength-blocks {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.strength-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.strength-block-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--str-tx);
+}
+
+.strength-exercises {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.strength-exercises li {
+  font-size: 15px;
+  color: var(--ink-2);
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.45;
+}
+
+.strength-exercises li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 9px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--str-tx);
+}
+
+.strength-exercises .ex-name {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.strength-exercises .ex-sets {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 400px) {
   h1.today-title { font-size: 28px; }
   .wrap { padding: 16px 16px 32px; }
@@ -362,7 +421,29 @@ const plan = [
         type: "str",
         label: "Strength",
         title: "Lower + push",
-        detail: "Block A: Bulgarian split squats 3×8–10 · DB RDLs 3×10. Block B: Push-ups or DB floor press 3×10–15 · Dips 3×6–10. Block C: KB swings 3×15 · Hanging knee raises 3×12.",
+        blocks: [
+          {
+            label: "Block A",
+            exercises: [
+              { name: "Bulgarian split squats", sets: "3 × 8–10" },
+              { name: "DB RDLs", sets: "3 × 10" }
+            ]
+          },
+          {
+            label: "Block B",
+            exercises: [
+              { name: "Push-ups or DB floor press", sets: "3 × 10–15" },
+              { name: "Dips", sets: "3 × 6–10" }
+            ]
+          },
+          {
+            label: "Block C",
+            exercises: [
+              { name: "KB swings", sets: "3 × 15" },
+              { name: "Hanging knee raises", sets: "3 × 12" }
+            ]
+          }
+        ],
         purpose: "Athletic muscle + durability"
       }
     ],
@@ -413,7 +494,29 @@ const plan = [
         type: "str",
         label: "Strength",
         title: "Pull + upper",
-        detail: "Block A: Pull-ups 4 sets · Single-arm DB row 3×10. Block B: DB shoulder press 3×10 · Lateral raises 3×15. Block C: Hammer curls 3×12 · Plank or ab wheel 3 rounds.",
+        blocks: [
+          {
+            label: "Block A",
+            exercises: [
+              { name: "Pull-ups", sets: "4 sets" },
+              { name: "Single-arm DB row", sets: "3 × 10" }
+            ]
+          },
+          {
+            label: "Block B",
+            exercises: [
+              { name: "DB shoulder press", sets: "3 × 10" },
+              { name: "Lateral raises", sets: "3 × 15" }
+            ]
+          },
+          {
+            label: "Block C",
+            exercises: [
+              { name: "Hammer curls", sets: "3 × 12" },
+              { name: "Plank or ab wheel", sets: "3 rounds" }
+            ]
+          }
+        ],
         purpose: "V-taper, shoulders, definition"
       }
     ],
@@ -528,8 +631,25 @@ function renderDay(idx) {
   data.sessions.forEach(s => {
     html += `<div class="card ${s.type}">
       <div class="card-label">${s.label}</div>
-      <div class="card-title">${s.title}</div>
-      <div class="card-detail">${s.detail}</div>`;
+      <div class="card-title">${s.title}</div>`;
+
+    if (s.detail) {
+      html += `<div class="card-detail">${s.detail}</div>`;
+    }
+
+    if (s.blocks && s.blocks.length) {
+      html += `<div class="strength-blocks">`;
+      s.blocks.forEach(b => {
+        html += `<div class="strength-block">
+          <div class="strength-block-label">${b.label}</div>
+          <ul class="strength-exercises">`;
+        b.exercises.forEach(ex => {
+          html += `<li><span class="ex-name">${ex.name}</span> <span class="ex-sets">— ${ex.sets}</span></li>`;
+        });
+        html += `</ul></div>`;
+      });
+      html += `</div>`;
+    }
 
     if (s.pace) {
       html += `<div class="pace">${s.pace}</div>`;
